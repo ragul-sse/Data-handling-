@@ -1,0 +1,54 @@
+library(ggplot2)
+library(plotly)
+library(rgl)
+data <- data.frame(
+  Date = as.Date(c('2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04', '2023-01-05')),
+  Temperature = c(10, 12, 8, 15, 14),
+  Humidity = c(75, 70, 80, 65, 72),
+  WindSpeed = c(15, 12, 18, 20, 16)
+)
+
+cor_matrix <- cor(data[, c("Temperature", "Humidity", "WindSpeed")])
+print("Correlation Matrix:")
+print(cor_matrix)
+
+plot_ly(data, x = ~WindSpeed, y = ~Humidity, z = ~Temperature, type = 'scatter3d', mode = 'markers',
+        marker = list(size = 8, color = ~Temperature, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(scene = list(xaxis = list(title = 'Wind Speed'),
+                      yaxis = list(title = 'Humidity'),
+                      zaxis = list(title = 'Temperature')))
+
+plot_ly() %>%
+  add_surface(z = matrix(data$Temperature, nrow = 5, ncol = 1),
+              x = matrix(data$Humidity, nrow = 5, ncol = 1),
+              y = matrix(data$WindSpeed, nrow = 5, ncol = 1),
+              colorscale = 'Viridis', showscale = TRUE) %>%
+  add_markers(data = data, x = ~Humidity, y = ~WindSpeed, z = ~Temperature, 
+              marker = list(size = 10, color = 'red')) %>%
+  layout(scene = list(xaxis = list(title = 'Humidity'),
+                      yaxis = list(title = 'Wind Speed'),
+                      zaxis = list(title = 'Temperature')))
+
+plot_ly() %>%
+  add_surface(x = ~data$Humidity, y = ~data$Temperature, z = ~data$WindSpeed,
+              colorscale = 'Viridis', showscale = TRUE) %>%
+  layout(scene = list(xaxis = list(title = 'Humidity'),
+                      yaxis = list(title = 'Temperature'),
+                      zaxis = list(title = 'Wind Speed')))
+
+plot_ly() %>%
+  add_surface(x = ~data$WindSpeed, y = ~data$Temperature, z = ~data$Humidity,
+              colorscale = 'Viridis', showscale = TRUE) %>%
+  layout(scene = list(xaxis = list(title = 'Wind Speed'),
+                      yaxis = list(title = 'Temperature'),
+                      zaxis = list(title = 'Humidity')))
+
+open3d()
+
+surface3d(data$Humidity, data$WindSpeed, data$Temperature, color = "lightblue")
+
+points3d(data$Humidity, data$WindSpeed, data$Temperature, col = "red", size = 10)
+
+axes3d()
+
+title3d(xlab = "Humidity", ylab = "Wind Speed", zlab = "Temperature")
