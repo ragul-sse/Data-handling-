@@ -1,0 +1,75 @@
+if (!requireNamespace("plotly", quietly = TRUE)) {
+  install.packages("plotly")
+}
+if (!requireNamespace("reshape2", quietly = TRUE)) {
+  install.packages("reshape2")
+}
+
+library(plotly)
+library(reshape2)
+
+survey_data <- data.frame(
+  Product = c("A", "B", "C", "D", "E"),
+  Price = c(50, 70, 60, 45, 55),
+  Rating = c(4.2, 3.8, 4.0, 4.5, 3.9),
+  Age_Group = c("25-35", "35-45", "18-25", "45-55", "25-35")
+)
+
+survey_data$Age_Group_Num <- as.numeric(factor(survey_data$Age_Group, levels = c("18-25", "25-35", "35-45", "45-55")))
+
+scatter_plot <- plot_ly(data = survey_data, x = ~Price, y = ~Rating, z = ~Age_Group_Num,
+                        type = "scatter3d", mode = "markers",
+                        marker = list(size = 8, color = ~Rating, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(title = "3D Scatter Plot: Rating vs. Price and Age Group",
+         scene = list(xaxis = list(title = "Price ($)"),
+                      yaxis = list(title = "Rating"),
+                      zaxis = list(title = "Age Group"),
+                      zaxis_tickvals = c(1, 2, 3, 4),
+                      zaxis_ticktext = c("18-25", "25-35", "35-45", "45-55")))
+
+print(scatter_plot)
+
+price_range <- seq(min(survey_data$Price), max(survey_data$Price), length.out = 20)
+age_group_range <- seq(1, 4, length.out = 20)
+
+grid_data <- expand.grid(Price = price_range, Age_Group_Num = age_group_range)
+
+grid_data$Rating <- with(survey_data, 
+                         approx(x = Age_Group_Num, y = Rating, xout = grid_data$Age_Group_Num, rule = 2)$y)
+
+surface_plot <- plot_ly(data = grid_data, x = ~Price, y = ~Rating, z = ~Age_Group_Num,
+                        type = "surface",
+                        colorscale = 'Viridis') %>%
+  layout(title = "3D Surface Plot: Rating Changes with Price and Age Group",
+         scene = list(xaxis = list(title = "Price ($)"),
+                      yaxis = list(title = "Rating"),
+                      zaxis = list(title = "Age Group"),
+                      zaxis_tickvals = c(1, 2, 3, 4),
+                      zaxis_ticktext = c("18-25", "25-35", "35-45", "45-55")))
+
+print(surface_plot)
+
+
+scatter_rating_price <- plot_ly(data = survey_data, x = ~Price, y = ~Rating, z = ~Age_Group_Num,
+                                type = "scatter3d", mode = "markers",
+                                marker = list(size = 8, color = ~Age_Group_Num, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(title = "3D Scatter Plot: Rating vs. Price",
+         scene = list(xaxis = list(title = "Price ($)"),
+                      yaxis = list(title = "Rating"),
+                      zaxis = list(title = "Age Group"),
+                      zaxis_tickvals = c(1, 2, 3, 4),
+                      zaxis_ticktext = c("18-25", "25-35", "35-45", "45-55")))
+
+print(scatter_rating_price)
+
+scatter_rating_age <- plot_ly(data = survey_data, x = ~Age_Group_Num, y = ~Rating, z = ~Price,
+                              type = "scatter3d", mode = "markers",
+                              marker = list(size = 8, color = ~Price, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(title = "3D Scatter Plot: Rating vs. Age Group",
+         scene = list(xaxis = list(title = "Age Group"),
+                      xaxis_tickvals = c(1, 2, 3, 4),
+                      xaxis_ticktext = c("18-25", "25-35", "35-45", "45-55"),
+                      yaxis = list(title = "Rating"),
+                      zaxis = list(title = "Price ($)")))
+
+print(scatter_rating_age)
