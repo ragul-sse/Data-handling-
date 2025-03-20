@@ -1,0 +1,65 @@
+if (!requireNamespace("plotly", quietly = TRUE)) {
+  install.packages("plotly")
+}
+if (!requireNamespace("reshape2", quietly = TRUE)) {
+  install.packages("reshape2")
+}
+
+library(plotly)
+library(reshape2)
+
+performance_data <- data.frame(
+  Student = c("A", "B", "C", "D", "E"),
+  Math_Score = c(85, 72, 90, 78, 88),
+  Science_Score = c(78, 85, 80, 75, 82),
+  Attendance = c(95, 92, 98, 85, 93)
+)
+
+scatter_plot <- plot_ly(data = performance_data, x = ~Math_Score, y = ~Science_Score, z = ~Attendance,
+                        type = "scatter3d", mode = "markers",
+                        marker = list(size = 8, color = ~Science_Score, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(title = "3D Scatter Plot: Science Score vs. Math Score and Attendance",
+         scene = list(xaxis = list(title = "Math Score"),
+                      yaxis = list(title = "Science Score"),
+                      zaxis = list(title = "Attendance (%)")))
+
+print(scatter_plot)
+
+math_range <- seq(min(performance_data$Math_Score), max(performance_data$Math_Score), length.out = 20)
+attendance_range <- seq(min(performance_data$Attendance), max(performance_data$Attendance), length.out = 20)
+
+grid_data <- expand.grid(Math_Score = math_range, Attendance = attendance_range)
+
+grid_data$Science_Score <- with(performance_data, 
+                                approx(x = Math_Score, y = Science_Score, xout = grid_data$Math_Score, rule = 2)$y)
+
+surface_plot <- plot_ly(data = grid_data, x = ~Math_Score, y = ~Attendance, z = ~Science_Score,
+                        type = "surface",
+                        colorscale = 'Viridis') %>%
+  layout(title = "3D Surface Plot: Science Scores with Math Score and Attendance",
+         scene = list(xaxis = list(title = "Math Score"),
+                      yaxis = list(title = "Attendance (%)"),
+                      zaxis = list(title = "Science Score")))
+
+print(surface_plot)
+
+
+scatter_science_math <- plot_ly(data = performance_data, x = ~Math_Score, y = ~Science_Score, z = ~Attendance,
+                                type = "scatter3d", mode = "markers",
+                                marker = list(size = 8, color = ~Attendance, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(title = "3D Scatter Plot: Science Scores vs. Math Scores",
+         scene = list(xaxis = list(title = "Math Score"),
+                      yaxis = list(title = "Science Score"),
+                      zaxis = list(title = "Attendance (%)")))
+
+print(scatter_science_math)
+
+scatter_science_attendance <- plot_ly(data = performance_data, x = ~Attendance, y = ~Science_Score, z = ~Math_Score,
+                                      type = "scatter3d", mode = "markers",
+                                      marker = list(size = 8, color = ~Math_Score, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(title = "3D Scatter Plot: Science Scores vs. Attendance",
+         scene = list(xaxis = list(title = "Attendance (%)"),
+                      yaxis = list(title = "Science Score"),
+                      zaxis = list(title = "Math Score")))
+
+print(scatter_science_attendance)
