@@ -1,0 +1,35 @@
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+if (!requireNamespace("reshape2", quietly = TRUE)) {
+  install.packages("reshape2")
+}
+if (!requireNamespace("viridis", quietly = TRUE)) {
+  install.packages("viridis")
+}
+
+library(ggplot2)
+library(reshape2)
+library(viridis)
+
+sales_data <- data.frame(
+  Month = factor(c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov"),
+                 levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov")),
+  Product_A_Sales = c(500, 600, 700, 800, 750, 850, 900, 950, 1000, 1050, 1100),
+  Product_B_Sales = c(300, 320, 350, 400, 420, 450, 480, 500, 550, 580, 600),
+  Product_C_Sales = c(200, 250, 300, 350, 400, 420, 450, 470, 500, 530, 550)
+)
+
+sales_long <- melt(sales_data, id.vars = "Month",
+                   variable.name = "Product",
+                   value.name = "Sales")
+
+ggplot(sales_long, aes(x = Product, y = Sales, fill = Product)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +  # Add alpha for slight transparency
+  geom_jitter(width = 0.2, size = 2, alpha = 0.6) +  # Add jitter for individual data points
+  labs(title = "Sales Performance of Products A, B, and C",
+       x = "Product",
+       y = "Sales") +
+  theme_minimal() +
+  scale_fill_viridis_d() +  # Use viridis color palette for better visibility
+  theme(legend.position = "none")  # Remove legend as it's redundant
