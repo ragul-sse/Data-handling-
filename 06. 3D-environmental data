@@ -1,0 +1,42 @@
+if (!requireNamespace("plotly", quietly = TRUE)) {
+  install.packages("plotly")
+}
+if (!requireNamespace("reshape2", quietly = TRUE)) {
+  install.packages("reshape2")
+}
+
+library(plotly)
+library(reshape2)
+
+environmental_data <- data.frame(
+  Location = c("A", "B", "C", "D", "E"),
+  Temperature = c(15, 20, 18, 12, 17),
+  Humidity = c(65, 70, 68, 60, 72),
+  CO2_Levels = c(400, 450, 420, 380, 430)
+)
+
+
+scatter_plot <- plot_ly(data = environmental_data, x = ~Temperature, y = ~Humidity, z = ~CO2_Levels,
+                        type = "scatter3d", mode = "markers",
+                        marker = list(size = 8, color = ~CO2_Levels, colorscale = 'Viridis', showscale = TRUE)) %>%
+  layout(title = "3D Scatter Plot: CO2 Levels vs. Temperature and Humidity",
+         scene = list(xaxis = list(title = "Temperature (°C)"),
+                      yaxis = list(title = "Humidity (%)"),
+                      zaxis = list(title = "CO2 Levels (ppm)")))
+
+print(scatter_plot)
+
+temperature_range <- seq(min(environmental_data$Temperature), max(environmental_data$Temperature), length.out = 20)
+humidity_range <- seq(min(environmental_data$Humidity), max(environmental_data$Humidity), length.out = 20)
+
+grid_data <- expand.grid(Temperature = temperature_range, Humidity = humidity_range)
+
+grid_data$CO2_Levels <- with(environmental_data, 
+                             approx(x = Temperature, y = CO2_Levels, xout = grid_data$Temperature, rule = 2)$y)
+
+surface_plot <- plot_ly(data = grid_data, x = ~Temperature, y = ~Humidity, z = ~CO2_Levels,
+                        type = "surface",
+                        colorscale = 'Viridis') %>%
+  layout(title = "3D Surface Plot: CO2 Levels with Temperature and Humidity",
+         scene = list(xaxis = list(title = "Temperature (°C)"),
+                      
